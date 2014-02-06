@@ -4,21 +4,18 @@
  * Click anywhere else but in the directive element and it will trigger
  * the given function. 
  * 
- * 
  */
- var ClickHide = angular.module('ClickHide', []);
+var ClickHide = angular.module('ClickHide', []);
+
 ClickHide.directive('clickHide', function( $document, $parse, $timeout ){
 
 	return{
-		scope: true,
 		link: function( $scope, element, attr ){
 			var self = this;
-			$scope.attr = attr;
 			
 			self._init = function(){
 
-				$scope.$watch( $scope.attr.chActivate, self.onActivationChange);
-				
+				$scope.$watch( attr.chActivate, self.onActivationChange );
 			}
 
 			self.onActivationChange = function( newValue ){
@@ -60,7 +57,7 @@ ClickHide.directive('clickHide', function( $document, $parse, $timeout ){
 					// parse and execute the click
 					// action
 					$scope.$apply(function(){
-						$parse($scope.attr.chClick)($scope.$parent);	
+						$parse(attr.chClick)($scope);	
 					});
 					
 					console.log('ClickHide: Not listening now');
