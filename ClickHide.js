@@ -45,6 +45,10 @@ ClickHide.directive('clickHide', function( $document, $parse, $timeout ){
 				console.log('ClickHide: Starting to listen for global click!');
 
 				$timeout(function(){
+
+					// Make sure we don't allow multiple listeners
+					// can't rely n the destroy always being run.
+					$document.unbind('click', $scope.onClick);
 					$document.on('click', $scope.onClick);
 				}, 10);
 			}
