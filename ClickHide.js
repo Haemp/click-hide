@@ -11,11 +11,16 @@ ClickHide.directive('clickHide', function( $document, $parse, $timeout ){
 
 	return{
 		link: function( $scope, element, attr ){
-			var self = this;
 
-			self._init = function(){
 
-				$scope.$watch( attr.chActivate, self.onActivationChange );
+			$scope._init = function(){
+
+				if(attr.chActivate){
+					$scope.$watch( attr.chActivate, $scope.onActivationChange );
+				}else{
+					// activate imediatly
+					$scope.listenForClick();
+				}
 
 				//clean up
 				$scope.$on('$destroy', function(){
@@ -23,7 +28,7 @@ ClickHide.directive('clickHide', function( $document, $parse, $timeout ){
 				});
 			}
 
-			self.onActivationChange = function( newValue ){
+			$scope.onActivationChange = function( newValue ){
 
 				if( newValue == true ){
 					$scope.listenForClick();
@@ -34,15 +39,11 @@ ClickHide.directive('clickHide', function( $document, $parse, $timeout ){
 				// we unbind the click listener - otherwise we'll get some
 				// funky behaviour.
 				else if( newValue == false ){
-
-					console.log('ClickHide: Not listening now');
 					$document.unbind('click', $scope.onClick);
 				}
 			}
 
 			$scope.listenForClick = function(){
-
-				console.log('ClickHide: Starting to listen for global click!');
 
 				$timeout(function(){
 
@@ -57,11 +58,10 @@ ClickHide.directive('clickHide', function( $document, $parse, $timeout ){
 			 * First click after activating.
 			 */
 			$scope.onClick = function( e ){
-				console.log('ClickHide: Catching click');
 
 				// check if the user has clicked outside of the
 				// element
-				if( !self._isDecendantOfParent(e.target, element) ){ // yes he did
+				if( !$scope._isDecendantOfParent(e.target, element) ){ // yes he did
 
 					// parse and execute the click
 					// action
@@ -69,7 +69,6 @@ ClickHide.directive('clickHide', function( $document, $parse, $timeout ){
 						$parse(attr.chClick)($scope);
 					});
 
-					console.log('ClickHide: Not listening now');
 					$document.unbind('click', $scope.onClick); // now we don't have to listen anymore
 				}
 			}
@@ -77,17 +76,21 @@ ClickHide.directive('clickHide', function( $document, $parse, $timeout ){
 			/**
 			 *
 			 */
-			self._isDecendantOfParent = function( decendantElement, parentElement ){
+			$scope._isDecendantOfParent = function( decendantElement, parentElement ){
 
 				var currentParent = decendantElement;
-				while( currentParent ){
+				while( currentParent.nodeName != 'BODY' ){
 					if( currentParent == parentElement[0] ){ return true }
 
 					currentParent = currentParent.parentNode;
+
+					// We're iterating inside a DOM fragment that's not
+					// attached to the DOM.
+					if( currentParent ==  null ) return true;
 				}
 				return false;
 			}
-			self._init();
+			$scope._init();
 		}
 	}
 });
